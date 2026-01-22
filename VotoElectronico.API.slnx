@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="VotoElectronico.API/VotoElectronico.API.csproj" />
+  <Project Path="Models/Models.csproj" Id="d9ba9018-ffff-4d7b-b4f6-e9c5a794683d" />
+  <Project Path="VotoElectronico.APII/VotoElectronico.APII.csproj" Id="314832c8-4636-4951-ab7f-afda787ef642" />
 </Solution>

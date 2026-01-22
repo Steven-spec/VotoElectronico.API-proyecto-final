@@ -1,0 +1,6 @@
+@VotoElectronico.APII_HostAddress = http://localhost:5241
+
+GET {{VotoElectronico.APII_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace VotoElectronico.API.Controllers
+namespace VotoElectronico.APII.Controllers
 {
     [ApiController]
     [Route("[controller]")]
