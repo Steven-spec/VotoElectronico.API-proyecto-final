@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models.DTOs;
 using VotoElectronico.MVC.Services;
+using Models;
+using Models.DTOs;
 
 namespace VotoElectronico.MVC.Controllers
 {
@@ -61,7 +62,7 @@ namespace VotoElectronico.MVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(VotoElectronico.Models.Usuario usuario)
+        public async Task<IActionResult> Register(Usuario usuario)
         {
             if (!ModelState.IsValid)
             {
@@ -71,7 +72,7 @@ namespace VotoElectronico.MVC.Controllers
             usuario.Rol = "Votante"; // Por defecto los registros son votantes
             usuario.Activo = true;
 
-            var response = await _apiConsumer.PostAsync<VotoElectronico.Models.ApiResult<VotoElectronico.Models.Usuario>>(
+            var response = await _apiConsumer.PostAsync<ApiResult<Usuario>>(
                 "api/Auth/Register", usuario);
 
             if (response?.Success == true)
