@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using VotoElectronico.MVC.Services;
+using Models;
+using Models.DTOs;
 
 namespace VotoElectronico.MVC.Controllers
 {
