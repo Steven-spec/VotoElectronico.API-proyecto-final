@@ -1,0 +1,110 @@
+﻿@model Models.Eleccion
+
+@{
+    ViewData["Title"] = "Votar";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="text-center mb-0">
+                        <i class="fas fa-vote-yea"></i> Proceso de Votación Electrónica
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (Model == null || ViewBag.Mensaje != null)
+                    {
+                        <div class="alert alert-warning text-center">
+                            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                            <h4>@(ViewBag.Mensaje ?? "No hay elecciones disponibles")</h4>
+                            <p>Por favor, vuelva más tarde.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            <h5><i class="fas fa-info-circle"></i> @Model.Nombre</h5>
+                            <p>@Model.Descripcion</p>
+                            <small>
+                                <strong>Fecha de votación:</strong>
+                                @Model.FechaInicio.ToString("dd/MM/yyyy HH:mm") - @Model.FechaFin.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+
+                        @if (ViewBag.Error != null)
+                        {
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle"></i> @ViewBag.Error
+                            </div>
+                        }
+
+                        <h4 class="mt-4 mb-4 text-center">Seleccione su candidato:</h4>
+
+                        <div class="row">
+                            @if (Model.Candidatos != null && Model.Candidatos.Any())
+                            {
+                                foreach (var candidato in Model.Candidatos)
+                                {
+                                    <div class="col-md-6 col-lg-4 mb-4">
+                                        <div class="card h-100 shadow-sm candidato-card">
+                                            <div class="card-header text-center" style="background-color: @candidato.Partido?.Color; color: white;">
+                                                <h5 class="mb-0">
+                                                    <strong>N° @candidato.NumeroCandidato</strong>
+                                                </h5>
+                                            </div>
+                                            <div class="card-body text-center">
+                                                <div class="mb-3">
+                                                    <i class="fas fa-user-circle fa-5x text-primary"></i>
+                                                </div>
+                                                <h5 class="card-title">
+                                                    @candidato.Usuario?.Nombres @candidato.Usuario?.Apellidos
+                                                </h5>
+                                                <p class="text-muted">
+                                                    <strong>@candidato.Partido?.Nombre</strong><br />
+                                                    (@candidato.Partido?.Siglas)
+                                                </p>
+                                                <p class="card-text">
+                                                    <small>@candidato.Cargo?.Nombre</small>
+                                                </p>
+                                                @if (!string.IsNullOrEmpty(candidato.Propuestas))
+                                                {
+                                                    <p class="card-text text-start">
+                                                        <small><strong>Propuestas:</strong><br />@candidato.Propuestas</small>
+                                                    </p>
+                                                }
+                                            </div>
+                                            <div class="card-footer text-center">
+                                                <form asp-action="RegistrarVoto" method="post" onsubmit="return confirm('¿Está seguro de que desea votar por este candidato? Esta acción no se puede deshacer.');">
+                                                    <input type="hidden" name="eleccionId" value="@Model.Id" />
+                                                    <input type="hidden" name="candidatoId" value="@candidato.Id" />
+                                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                                        <i class="fas fa-check-circle"></i> VOTAR
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .candidato-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .candidato-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
+        }
+    </style>
+}
