@@ -1,0 +1,217 @@
+﻿@model List<Models.Usuario>
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-5">
+                    <i class="fas fa-users"></i> Gestión de Usuarios
+                </h1>
+                <a asp-action="Dashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white shadow">
+                <div class="card-body">
+                    <h6>Total Usuarios</h6>
+                    <h3>@Model.Count</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white shadow">
+                <div class="card-body">
+                    <h6>Votantes</h6>
+                    <h3>@Model.Count(u => u.Rol == "Votante")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow">
+                <div class="card-body">
+                    <h6>Candidatos</h6>
+                    <h3>@Model.Count(u => u.Rol == "Candidato")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white shadow">
+                <div class="card-body">
+                    <h6>Administradores</h6>
+                    <h3>@Model.Count(u => u.Rol == "Administrador")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-body">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary active" onclick="filtrarRol('Todos')">
+                            Todos (@Model.Count)
+                        </button>
+                        <button type="button" class="btn btn-outline-success" onclick="filtrarRol('Votante')">
+                            Votantes (@Model.Count(u => u.Rol == "Votante"))
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="filtrarRol('Candidato')">
+                            Candidatos (@Model.Count(u => u.Rol == "Candidato"))
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" onclick="filtrarRol('Administrador')">
+                            Administradores (@Model.Count(u => u.Rol == "Administrador"))
+                        </button>
+                    </div>
+
+                    <div class="float-end">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre, cédula o email...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Usuarios -->
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Lista de Usuarios Registrados</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered" id="usuariosTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cédula</th>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Ha Votado</th>
+                            <th>Fecha Registro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var usuario in Model.OrderByDescending(u => u.FechaRegistro))
+                        {
+                            <tr class="usuario-row" data-rol="@usuario.Rol"
+                                data-search="@(usuario.Nombres) @(usuario.Apellidos) @(usuario.Cedula) @(usuario.Email)">
+                                <td><strong>#@usuario.Id</strong></td>
+                                <td>@usuario.Cedula</td>
+                                <td>
+                                    <strong>@usuario.Nombres @usuario.Apellidos</strong>
+                                </td>
+                                <td>@usuario.Email</td>
+                                <td>
+                                    @if (usuario.Rol == "Administrador")
+                                    {
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-user-shield"></i> @usuario.Rol
+                                        </span>
+                                    }
+                                    else if (usuario.Rol == "Candidato")
+                                    {
+                                        <span class="badge bg-info">
+                                            <i class="fas fa-id-badge"></i> @usuario.Rol
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-user"></i> @usuario.Rol
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (usuario.Activo)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check"></i> Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times"></i> Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (usuario.HaVotado)
+                                    {
+                                        <span class="badge bg-primary">
+                                            <i class="fas fa-vote-yea"></i> Sí
+                                        </span>
+                                        @if (usuario.FechaVoto.HasValue)
+                                        {
+                                            <br />
+                                
+                                            <small class="text-muted">@usuario.FechaVoto.Value.ToString("dd/MM/yyyy HH:mm")</small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-clock"></i> No
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <small>@usuario.FechaRegistro.ToString("dd/MM/yyyy HH:mm")</small>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filtrarRol(rol) {
+            const rows = document.querySelectorAll('.usuario-row');
+
+            rows.forEach(row => {
+                if (rol === 'Todos' || row.dataset.rol === rol) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Actualizar botones activos
+            document.querySelectorAll('.btn-group button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Búsqueda en tiempo real
+        document.getElementById('searchInput').addEventListener('keyup', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.usuario-row');
+
+            rows.forEach(row => {
+                const searchData = row.dataset.search.toLowerCase();
+                if (searchData.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

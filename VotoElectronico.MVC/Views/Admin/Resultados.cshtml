@@ -1,0 +1,256 @@
+﻿@model List<Dictionary<string, object>>
+
+@{
+    ViewData["Title"] = "Resultados de Elección";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-5">
+                    <i class="fas fa-chart-bar"></i> Resultados de la Elección
+                </h1>
+                <div>
+                    <button onclick="window.print()" class="btn btn-success">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <a asp-action="Dashboard" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-warning text-center">
+            <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+            <h4>No hay resultados disponibles</h4>
+            <p>Aún no se han registrado votos en esta elección o los resultados no están públicos.</p>
+            <a asp-action="Elecciones" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i> Ver Todas las Elecciones
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Resumen de Resultados -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-poll"></i> Resumen de Votación
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 text-center mb-3">
+                                <h6 class="text-muted">Total de Votos</h6>
+                                <h2 class="text-primary">
+                                    @{
+                                        int totalVotos = 0;
+                                        foreach (var resultado in Model)
+                                        {
+                                            if (resultado.ContainsKey("TotalVotos"))
+                                            {
+                                                totalVotos += Convert.ToInt32(resultado["TotalVotos"]);
+                                            }
+                                        }
+                                    }
+                                    @totalVotos
+                                </h2>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <h6 class="text-muted">Candidatos</h6>
+                                <h2 class="text-info">@Model.Count</h2>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <h6 class="text-muted">Ganador Actual</h6>
+                                <h2 class="text-success">
+                                    <i class="fas fa-trophy"></i>
+                                </h2>
+                            </div>
+                            <div class="col-md-3 text-center mb-3">
+                                <h6 class="text-muted">Estado</h6>
+                                <h2 class="text-warning">
+                                    <i class="fas fa-circle"></i>
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Resultados -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list-ol"></i> Resultados Detallados
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Posición</th>
+                                        <th>Candidato</th>
+                                        <th>Partido</th>
+                                        <th>Cargo</th>
+                                        <th>N° Candidato</th>
+                                        <th>Total Votos</th>
+                                        <th>Porcentaje</th>
+                                        <th>Barra</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int posicion = 1;
+                                        foreach (var resultado in Model)
+                                        {
+                                            var badgeClass = posicion == 1 ? "bg-warning" : posicion == 2 ? "bg-secondary" : posicion == 3 ? "bg-danger" : "bg-info";
+                                            var icon = posicion == 1 ? "fa-trophy" : posicion == 2 ? "fa-medal" : posicion == 3 ? "fa-award" : "fa-certificate";
+
+                                            var nombreCandidato = resultado.ContainsKey("NombreCandidato") ? resultado["NombreCandidato"]?.ToString() : "N/A";
+                                            var partido = resultado.ContainsKey("Partido") ? resultado["Partido"]?.ToString() : "N/A";
+                                            var cargo = resultado.ContainsKey("Cargo") ? resultado["Cargo"]?.ToString() : "N/A";
+                                            var numeroCandidato = resultado.ContainsKey("NumeroCandidato") ? resultado["NumeroCandidato"]?.ToString() : "0";
+                                            var votos = resultado.ContainsKey("TotalVotos") ? Convert.ToInt32(resultado["TotalVotos"]) : 0;
+                                            var porcentaje = resultado.ContainsKey("Porcentaje") ? Convert.ToDecimal(resultado["Porcentaje"]) : 0;
+
+                                            <tr>
+                                                <td class="text-center">
+                                                    <span class="badge @badgeClass">
+                                                        <i class="fas @icon"></i> #@posicion
+                                                    </span>
+                                                </td>
+                                                <td><strong>@nombreCandidato</strong></td>
+                                                <td>@partido</td>
+                                                <td>@cargo</td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-primary">@numeroCandidato</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong class="text-primary">@votos</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong>@porcentaje.ToString("F2")%</strong>
+                                                </td>
+                                                <td>
+                                                    <div class="progress">
+                                                        <div class="progress-bar @(posicion == 1 ? "bg-success" : "bg-info")"
+                                                             role="progressbar"
+                                                             style="width: @porcentaje%"
+                                                             aria-valuenow="@porcentaje"
+                                                             aria-valuemin="0"
+                                                             aria-valuemax="100">
+                                                            @porcentaje.ToString("F1")%
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            posicion++;
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico de Votos -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-pie"></i> Distribución de Votos
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="votosChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @if (Model != null && Model.Any())
+    {
+        <script>
+            const ctx = document.getElementById('votosChart');
+            const data = {
+                labels: [
+                    @foreach (var resultado in Model)
+                    {
+                            var nombre = resultado.ContainsKey("NombreCandidato") ? resultado["NombreCandidato"]?.ToString() : "N/A";
+                            @Html.Raw($"'{nombre}',")
+                    }
+                ],
+                datasets: [{
+                    label: 'Votos',
+                    data: [
+                        @foreach (var resultado in Model)
+                        {
+                                var votos = resultado.ContainsKey("TotalVotos") ? Convert.ToInt32(resultado["TotalVotos"]) : 0;
+                                @Html.Raw($"{votos},")
+                        }
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 206, 86, 0.7)',
+                        'rgba(75, 192, 192, 0.7)',
+                        'rgba(153, 102, 255, 0.7)',
+                        'rgba(255, 159, 64, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: data,
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Resultados de la Votación'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    }
+}

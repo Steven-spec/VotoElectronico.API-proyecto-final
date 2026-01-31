@@ -1,0 +1,165 @@
+﻿@model List<Models.Eleccion>
+
+@{
+    ViewData["Title"] = "Gestión de Elecciones";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="display-5">
+                    <i class="fas fa-vote-yea"></i> Gestión de Elecciones
+                </h1>
+                <a asp-action="Dashboard" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver al Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle fa-3x mb-3"></i>
+            <h4>No hay elecciones registradas</h4>
+            <p>Las elecciones se crean desde la API o usando Swagger.</p>
+            <a href="http://localhost:5050/swagger" target="_blank" class="btn btn-primary">
+                <i class="fas fa-external-link-alt"></i> Abrir Swagger
+            </a>
+        </div>
+    }
+    else
+    {
+        <!-- Filtros -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary active" onclick="filtrarEstado('Todas')">
+                                Todas (@Model.Count)
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="filtrarEstado('EnCurso')">
+                                En Curso (@Model.Count(e => e.Estado == "EnCurso"))
+                            </button>
+                            <button type="button" class="btn btn-outline-warning" onclick="filtrarEstado('Programada')">
+                                Programadas (@Model.Count(e => e.Estado == "Programada"))
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" onclick="filtrarEstado('Finalizada')">
+                                Finalizadas (@Model.Count(e => e.Estado == "Finalizada"))
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Elecciones -->
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-list"></i> Lista de Elecciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Tipo</th>
+                                <th>Método Adjudicación</th>
+                                <th>Fecha Inicio</th>
+                                <th>Fecha Fin</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var eleccion in Model)
+                            {
+                                <tr class="eleccion-row" data-estado="@eleccion.Estado">
+                                    <td><strong>#@eleccion.Id</strong></td>
+                                    <td>
+                                        <strong>@eleccion.Nombre</strong><br />
+                                        <small class="text-muted">@eleccion.Descripcion</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@eleccion.TipoEleccion</span>
+                                    </td>
+                                    <td>@eleccion.MetodoAdjudicacion</td>
+                                    <td>@eleccion.FechaInicio.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@eleccion.FechaFin.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (eleccion.Estado == "EnCurso")
+                                        {
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-circle"></i> En Curso
+                                            </span>
+                                        }
+                                        else if (eleccion.Estado == "Finalizada")
+                                        {
+                                            <span class="badge bg-secondary">
+                                                <i class="fas fa-check"></i> Finalizada
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-clock"></i> Programada
+                                            </span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a asp-action="Resultados" asp-route-id="@eleccion.Id"
+                                               class="btn btn-info" title="Ver Resultados">
+                                                <i class="fas fa-chart-bar"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-light">
+                <h6><i class="fas fa-info-circle"></i> Información</h6>
+                <ul class="mb-0">
+                    <li>Para crear nuevas elecciones, use la API a través de Swagger</li>
+                    <li>Las elecciones se pueden gestionar completamente desde los endpoints de la API</li>
+                    <li>Use <code>POST /api/Elecciones</code> para crear nuevas elecciones</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function filtrarEstado(estado) {
+            const rows = document.querySelectorAll('.eleccion-row');
+
+            rows.forEach(row => {
+                if (estado === 'Todas' || row.dataset.estado === estado) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            // Actualizar botones activos
+            document.querySelectorAll('.btn-group button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+    </script>
+}
