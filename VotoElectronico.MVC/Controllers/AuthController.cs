@@ -64,25 +64,51 @@ namespace VotoElectronico.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> Register(Usuario usuario)
         {
-            if (!ModelState.IsValid)
+            try
             {
+                if (!ModelState.IsValid)
+                {
+                    ViewBag.Error = "Por favor complete todos los campos correctamente";
+                    return View(usuario);
+                }
+
+                // Validar que se haya seleccionado un rol
+                if (string.IsNullOrEmpty(usuario.Rol))
+                {
+                    ViewBag.Error = "Debe seleccionar un tipo de cuenta";
+                    return View(usuario);
+                }
+
+                // NO forzar el rol, usar el que seleccionó el usuario
+                usuario.Activo = true;
+                usuario.HaVotado = false;
+                usuario.FechaRegistro = DateTime.Now;
+
+                var response = await _apiConsumer.PostAsync<ApiResult<Usuario>>(
+                    "api/Auth/Register", usuario);
+
+                if (response == null)
+                {
+                    ViewBag.Error = "Error de conexión con la API. Verifique que la API esté corriendo en http://localhost:5050";
+                    return View(usuario);
+                }
+
+                if (response.Success == true)
+                {
+                    TempData["SuccessMessage"] = $"¡Cuenta creada exitosamente!";
+                    TempData["SuccessDetails"] = $"Se ha registrado como <strong>{usuario.Rol}</strong>. Ya puede iniciar sesión con su correo y contraseña.";
+                    TempData["ShowSuccessModal"] = true;
+                    return RedirectToAction("Login");
+                }
+
+                ViewBag.Error = response.Message ?? "Error al registrar usuario";
                 return View(usuario);
             }
-
-            usuario.Rol = "Votante"; // Por defecto los registros son votantes
-            usuario.Activo = true;
-
-            var response = await _apiConsumer.PostAsync<ApiResult<Usuario>>(
-                "api/Auth/Register", usuario);
-
-            if (response?.Success == true)
+            catch (Exception ex)
             {
-                TempData["Success"] = "Usuario registrado exitosamente. Ya puede iniciar sesión.";
-                return RedirectToAction("Login");
+                ViewBag.Error = $"Error inesperado: {ex.Message}";
+                return View(usuario);
             }
-
-            ViewBag.Error = response?.Message ?? "Error al registrar usuario";
-            return View(usuario);
         }
 
         public IActionResult Logout()

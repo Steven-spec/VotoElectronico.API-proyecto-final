@@ -1,0 +1,256 @@
+﻿@{
+    ViewData["Title"] = "Voto Registrado Exitosamente";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-success animate__animated animate__fadeIn">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <div class="mb-3">
+                        <i class="fas fa-check-circle fa-5x animate__animated animate__bounceIn"></i>
+                    </div>
+                    <h2 class="mb-0">¡Voto Registrado Exitosamente!</h2>
+                </div>
+
+                <div class="card-body text-center p-5">
+                    @if (ViewBag.Success != null)
+                    {
+                        <div class="alert alert-success mb-4">
+                            <h4>@ViewBag.Success</h4>
+                        </div>
+                    }
+
+                    <div class="mb-4">
+                        <i class="fas fa-vote-yea fa-4x text-success mb-3"></i>
+                        <p class="lead">Su participación es fundamental para la democracia</p>
+                        <p class="text-muted">Gracias por ejercer su derecho al voto</p>
+                    </div>
+
+                    @if (ViewBag.ComprobanteHash != null)
+                    {
+                        <div class="card bg-light mb-4">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <i class="fas fa-receipt"></i> Comprobante de Voto
+                                </h5>
+                                <p class="text-muted mb-3">
+                                    Guarde este código para verificar que su voto fue registrado
+                                </p>
+
+                                <div class="alert alert-info mb-3">
+                                    <div class="input-group">
+                                        <input type="text"
+                                               class="form-control text-center fw-bold"
+                                               id="comprobanteHash"
+                                               value="@ViewBag.ComprobanteHash"
+                                               readonly
+                                               style="font-family: monospace; font-size: 1.1em;">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="copiarComprobante()">
+                                            <i class="fas fa-copy"></i> Copiar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <small class="text-muted">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Este código es único y no puede usarse para identificar su voto
+                                </small>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="alert alert-light border-primary">
+                        <h6 class="mb-3">
+                            <i class="fas fa-info-circle text-primary"></i> Información Importante
+                        </h6>
+                        <ul class="text-start mb-0">
+                            <li>Su voto ha sido encriptado y guardado de forma segura</li>
+                            <li>El sistema NO puede relacionar su identidad con su elección</li>
+                            <li>Se ha enviado una confirmación a su correo electrónico</li>
+                            <li>Recibirá un SMS de confirmación en los próximos minutos</li>
+                            <li>No podrá votar nuevamente en esta elección</li>
+                        </ul>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-grid gap-3">
+                        <a href="javascript:window.print()" class="btn btn-outline-success btn-lg">
+                            <i class="fas fa-print"></i> Imprimir Comprobante
+                        </a>
+
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home"></i> Volver al Inicio
+                        </a>
+
+                        <a asp-controller="Auth" asp-action="Logout" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </a>
+                    </div>
+
+                    <div class="mt-4">
+                        <p class="text-muted">
+                            <i class="fas fa-clock"></i>
+                            Voto registrado el @DateTime.Now.ToString("dd/MM/yyyy 'a las' HH:mm")
+                        </p>
+                    </div>
+                </div>
+
+                <div class="card-footer text-center bg-light">
+                    <small class="text-muted">
+                        Sistema de Voto Electrónico Seguro |
+                        <i class="fas fa-lock"></i> Encriptación AES-256 |
+                        <i class="fas fa-shield-alt"></i> Auditable
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confeti de celebración -->
+<canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas>
+
+@section Scripts {
+    <script>
+        // Copiar comprobante al clipboard
+        function copiarComprobante() {
+            const input = document.getElementById('comprobanteHash');
+            input.select();
+            input.setSelectionRange(0, 99999); // Para móviles
+
+            navigator.clipboard.writeText(input.value).then(() => {
+                // Mostrar mensaje de éxito
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copiado';
+                btn.classList.add('btn-success');
+                btn.classList.remove('btn-outline-secondary');
+
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('btn-success');
+                    btn.classList.add('btn-outline-secondary');
+                }, 2000);
+            });
+        }
+
+        // Animación de confeti simple
+        window.addEventListener('load', function() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const confettiCount = 50;
+            const confetti = [];
+
+            class Confetto {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = -20;
+                    this.size = Math.random() * 5 + 5;
+                    this.speed = Math.random() * 3 + 2;
+                    this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
+                }
+
+                update() {
+                    this.y += this.speed;
+                    this.x += Math.sin(this.y / 50) * 2;
+                }
+
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.fillRect(this.x, this.y, this.size, this.size);
+                }
+            }
+
+            for (let i = 0; i < confettiCount; i++) {
+                confetti.push(new Confetto());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                confetti.forEach((confetto, index) => {
+                    confetto.update();
+                    confetto.draw();
+
+                    if (confetto.y > canvas.height) {
+                        confetti.splice(index, 1);
+                    }
+                });
+
+                if (confetti.length > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    // Remover canvas después de la animación
+                    setTimeout(() => {
+                        canvas.style.display = 'none';
+                    }, 1000);
+                }
+            }
+
+            animate();
+        });
+
+        // Prevenir que el usuario vuelva atrás
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+}
+
+@section Styles {
+    <style>
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @@keyframes bounceIn {
+            0% {
+                transform: scale(0);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .animate__animated {
+            animation-duration: 1s;
+        }
+
+        .animate__fadeIn {
+            animation-name: fadeIn;
+        }
+
+        .animate__bounceIn {
+            animation-name: bounceIn;
+        }
+
+        @@media print {
+            .btn, .card-footer {
+                display: none !important;
+            }
+
+            #confetti-canvas {
+                display: none !important;
+            }
+        }
+    </style>
+}

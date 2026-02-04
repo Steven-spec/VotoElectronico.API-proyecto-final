@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Models;
 
+
 namespace VotoElectronico.APII.Data
 {
     public class VotoElectronicoContext : DbContext
@@ -19,6 +20,7 @@ namespace VotoElectronico.APII.Data
         public DbSet<VotoEncriptado> VotosEncriptados { get; set; } = default!;
         public DbSet<Resultado> Resultados { get; set; } = default!;
         public DbSet<AuditoriaVoto> AuditoriasVotos { get; set; } = default!;
+        public DbSet<CodigoVerificacion> CodigosVerificacion { get; set; } = default!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -100,6 +102,10 @@ namespace VotoElectronico.APII.Data
             modelBuilder.Entity<VotoEncriptado>()
                 .HasIndex(v => v.HashVoto)
                 .IsUnique();
+
+            // Configurar CodigoVerificacion
+            modelBuilder.Entity<CodigoVerificacion>()
+                .HasIndex(c => new { c.Cedula, c.Codigo });
         }
     }
 }

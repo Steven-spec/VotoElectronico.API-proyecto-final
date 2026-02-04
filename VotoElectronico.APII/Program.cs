@@ -14,7 +14,7 @@ namespace VotoElectronico.APII
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // DbContext
+            // Configurar DbContext
             builder.Services.AddDbContext<VotoElectronicoContext>(options =>
                 options.UseMySql(
                     builder.Configuration.GetConnectionString("VotoElectronicoContext.mariadb")
@@ -23,11 +23,13 @@ namespace VotoElectronico.APII
                 )
             );
 
-            // Servicios
+            // Registrar servicios
             builder.Services.AddScoped<IJwtService, JwtService>();
             builder.Services.AddScoped<IEncriptacionService, EncriptacionService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddScoped<ISmsService, SmsService>();
 
-            // JWT
+            // Configurar JWT Authentication
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -40,38 +42,34 @@ namespace VotoElectronico.APII
                         ValidIssuer = builder.Configuration["Jwt:Issuer"],
                         ValidAudience = builder.Configuration["Jwt:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(
-                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-                        )
+                            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
                     };
                 });
 
             builder.Services.AddAuthorization();
 
-            // Controllers + JSON
-            builder.Services
-                .AddControllers()
-                .AddNewtonsoftJson(options =>
-                    options.SerializerSettings.ReferenceLoopHandling =
-                        Newtonsoft.Json.ReferenceLoopHandling.Ignore
-                );
-
+            // Add services to the container
+            builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
-            // Swagger
+            // Configurar Swagger con JWT
             builder.Services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Title = "VotoElectronico API",
-                    Version = "v1"
+                    Version = "v1",
+                    Description = "API para Sistema de Voto Electrónico Seguro"
                 });
 
+                // Configurar JWT en Swagger
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "Authorization: Bearer {token}",
+                    Description = "JWT Authorization header usando el esquema Bearer. Ejemplo: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
                 });
 
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -90,20 +88,30 @@ namespace VotoElectronico.APII
                 });
             });
 
-            // CORS
+            // Configure JSON options para evitar referencias circulares
+            builder.Services
+                .AddControllers()
+                .AddNewtonsoftJson(
+                    options =>
+                    options.SerializerSettings.ReferenceLoopHandling
+                    = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+                );
+
+            // Configurar CORS
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAll", policy =>
-                {
-                    policy.AllowAnyOrigin()
-                          .AllowAnyMethod()
-                          .AllowAnyHeader();
-                });
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyMethod()
+                               .AllowAnyHeader();
+                    });
             });
 
             var app = builder.Build();
 
-            // Swagger
+            // Configure the HTTP request pipeline
             app.UseSwagger();
             app.UseSwaggerUI(c =>
             {
@@ -111,10 +119,32 @@ namespace VotoElectronico.APII
             });
 
             app.UseCors("AllowAll");
+
             app.UseHttpsRedirection();
-            app.UseAuthentication();
+
+            app.UseAuthentication(); // IMPORTANTE: Debe ir antes de Authorization
             app.UseAuthorization();
+
             app.MapControllers();
+
+            // Seed data de prueba - COMENTADO TEMPORALMENTE
+            /*
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+                try
+                {
+                    var context = services.GetRequiredService<VotoElectronicoContext>();
+                    var encriptacion = services.GetRequiredService<IEncriptacionService>();
+                    DataSeeder.SeedData(context, encriptacion).Wait();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al inicializar datos: {ex.Message}");
+                }
+            }
+            */
+
             app.Run();
         }
     }

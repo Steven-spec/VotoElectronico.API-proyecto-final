@@ -1,0 +1,260 @@
+﻿@{
+    ViewData["Title"] = "Panel de Administración";
+}
+
+<div class="container-fluid mt-4">
+    <!-- Encabezado -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4">
+                <i class="fas fa-tachometer-alt"></i> Panel de Administración
+            </h1>
+            <p class="text-muted">Bienvenido, @Context.Session.GetString("UserName")</p>
+        </div>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @ViewBag.Error
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Tarjetas de estadísticas -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Elecciones
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalElecciones</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-vote-yea fa-3x text-primary opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Total Usuarios
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalUsuarios</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-3x text-success opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Total Candidatos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalCandidatos</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-id-badge fa-3x text-info opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                Total Partidos
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@ViewBag.TotalPartidos</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-flag fa-3x text-warning opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elecciones Activas -->
+    @if (ViewBag.EleccionesActivas != null && ViewBag.EleccionesActivas.Count > 0)
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-bullhorn"></i> Elecciones en Curso
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        @foreach (var eleccion in ViewBag.EleccionesActivas)
+                        {
+                            <div class="alert alert-success">
+                                <h6>@eleccion.Nombre</h6>
+                                <p class="mb-1">@eleccion.Descripcion</p>
+                                <small>
+                                    <strong>Finaliza:</strong> @eleccion.FechaFin.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                                <div class="mt-2">
+                                    <a asp-action="Resultados" asp-route-id="@eleccion.Id" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-chart-bar"></i> Ver Resultados en Tiempo Real
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Acciones Rápidas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt"></i> Acciones Rápidas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a asp-action="Elecciones" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="fas fa-vote-yea fa-2x mb-2"></i><br />
+                                Gestionar Elecciones
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-action="Usuarios" class="btn btn-outline-success btn-lg w-100">
+                                <i class="fas fa-users fa-2x mb-2"></i><br />
+                                Ver Usuarios
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-info btn-lg w-100">
+                                <i class="fas fa-chart-line fa-2x mb-2"></i><br />
+                                Ver Estadísticas
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="http://localhost:5050/swagger" target="_blank" class="btn btn-outline-warning btn-lg w-100">
+                                <i class="fas fa-cog fa-2x mb-2"></i><br />
+                                API Swagger
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Todas las Elecciones -->
+    @if (ViewBag.Elecciones != null && ViewBag.Elecciones.Count > 0)
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list"></i> Todas las Elecciones
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Fecha Inicio</th>
+                                        <th>Fecha Fin</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var eleccion in ViewBag.Elecciones)
+                                    {
+                                        <tr>
+                                            <td>@eleccion.Id</td>
+                                            <td><strong>@eleccion.Nombre</strong></td>
+                                            <td>@eleccion.TipoEleccion</td>
+                                            <td>@eleccion.FechaInicio.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@eleccion.FechaFin.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>
+                                                @if (eleccion.Estado == "EnCurso")
+                                                {
+                                                    <span class="badge bg-success">En Curso</span>
+                                                }
+                                                else if (eleccion.Estado == "Finalizada")
+                                                {
+                                                    <span class="badge bg-secondary">Finalizada</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning">Programada</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-action="Resultados" asp-route-id="@eleccion.Id" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-chart-bar"></i> Resultados
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .border-left-primary {
+            border-left: 4px solid #4e73df;
+        }
+
+        .border-left-success {
+            border-left: 4px solid #1cc88a;
+        }
+
+        .border-left-info {
+            border-left: 4px solid #36b9cc;
+        }
+
+        .border-left-warning {
+            border-left: 4px solid #f6c23e;
+        }
+
+        .opacity-50 {
+            opacity: 0.3;
+        }
+    </style>
+}

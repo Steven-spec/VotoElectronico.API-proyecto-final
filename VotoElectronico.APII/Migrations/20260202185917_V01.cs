@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace VotoElectronico.APII.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class V01 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -29,6 +29,27 @@ namespace VotoElectronico.APII.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Cargos", x => x.Id);
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
+
+            migrationBuilder.CreateTable(
+                name: "CodigosVerificacion",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Cedula = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Codigo = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    FechaCreacion = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    FechaExpiracion = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    Usado = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    EleccionId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CodigosVerificacion", x => x.Id);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -287,6 +308,11 @@ namespace VotoElectronico.APII.Migrations
                 column: "UsuarioId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_CodigosVerificacion_Cedula_Codigo",
+                table: "CodigosVerificacion",
+                columns: new[] { "Cedula", "Codigo" });
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Resultados_CandidatoId",
                 table: "Resultados",
                 column: "CandidatoId");
@@ -341,6 +367,9 @@ namespace VotoElectronico.APII.Migrations
         {
             migrationBuilder.DropTable(
                 name: "AuditoriasVotos");
+
+            migrationBuilder.DropTable(
+                name: "CodigosVerificacion");
 
             migrationBuilder.DropTable(
                 name: "Resultados");

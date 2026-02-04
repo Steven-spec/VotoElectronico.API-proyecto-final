@@ -1,26 +1,34 @@
 ﻿@model Models.Usuario
 
 @{
-    ViewData["Title"] = "Registrarse";
+    ViewData["Title"] = "Registrar Usuario";
 }
 
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-md-10">
             <div class="card shadow">
-                <div class="card-header bg-success text-white text-center">
-                    <h3><i class="fas fa-user-plus"></i> Registro de Nuevo Votante</h3>
+                <div class="card-header bg-primary text-white">
+                    <h4><i class="fas fa-user-plus"></i> Registrar Nuevo Usuario</h4>
                 </div>
                 <div class="card-body">
                     @if (ViewBag.Error != null)
                     {
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert alert-danger alert-dismissible fade show">
                             @ViewBag.Error
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     }
 
-                    <form asp-action="Register" method="post" id="registerForm">
+                    @if (ViewBag.Success != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show">
+                            @ViewBag.Success
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="RegistrarUsuario" method="post">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Cedula" class="form-label">
@@ -34,7 +42,7 @@
                                 <label asp-for="Email" class="form-label">
                                     <i class="fas fa-envelope"></i> Correo Electrónico *
                                 </label>
-                                <input asp-for="Email" type="email" class="form-control" placeholder="correo@email.com" required />
+                                <input asp-for="Email" type="email" class="form-control" placeholder="usuario@email.com" required />
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
                         </div>
@@ -62,49 +70,40 @@
                                 <label asp-for="PasswordHash" class="form-label">
                                     <i class="fas fa-lock"></i> Contraseña *
                                 </label>
-                                <input asp-for="PasswordHash" type="password" class="form-control" placeholder="••••••••" required minlength="6" />
+                                <input asp-for="PasswordHash" type="password" class="form-control" placeholder="••••••••" required />
                                 <span asp-validation-for="PasswordHash" class="text-danger"></span>
-                                <small class="text-muted">Mínimo 6 caracteres</small>
+                                <small class="text-muted">Esta será la contraseña temporal del usuario</small>
                             </div>
 
                             <div class="col-md-6 mb-3">
                                 <label asp-for="Rol" class="form-label">
-                                    <i class="fas fa-user-tag"></i> Tipo de Cuenta *
+                                    <i class="fas fa-user-tag"></i> Tipo de Usuario *
                                 </label>
                                 <select asp-for="Rol" class="form-select" required>
-                                    <option value="">-- Seleccione un tipo --</option>
-                                    <option value="Votante" selected>Votante</option>
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="Votante">Votante</option>
                                     <option value="Candidato">Candidato</option>
                                     <option value="Administrador">Administrador</option>
                                 </select>
                                 <span asp-validation-for="Rol" class="text-danger"></span>
-                                <small class="text-muted">Seleccione el tipo de cuenta que desea crear</small>
                             </div>
                         </div>
 
                         <div class="alert alert-info">
-                            <small>
-                                <i class="fas fa-info-circle"></i>
-                                Todos los campos marcados con * son obligatorios.<br />
-                                <strong>Tipos de cuenta:</strong>
-                                <ul class="mb-0 mt-2">
-                                    <li><strong>Votante:</strong> Puede emitir su voto en elecciones activas</li>
-                                    <li><strong>Candidato:</strong> Puede postularse a cargos electorales</li>
-                                    <li><strong>Administrador:</strong> Gestiona elecciones, candidatos y resultados</li>
-                                </ul>
-                            </small>
+                            <h6><i class="fas fa-info-circle"></i> Información</h6>
+                            <ul class="mb-0">
+                                <li><strong>Votante:</strong> Podrá votar en elecciones activas</li>
+                                <li><strong>Candidato:</strong> Podrá ser postulado a cargos (debe ser vinculado después)</li>
+                                <li><strong>Administrador:</strong> Tendrá acceso total al sistema</li>
+                            </ul>
                         </div>
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg" id="btnRegistrar">
-                                <i class="fas fa-check"></i> Crear Cuenta
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="fas fa-check"></i> Registrar Usuario
                             </button>
-                            <button type="button" class="btn btn-success btn-lg d-none" id="btnCargando" disabled>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Creando cuenta...
-                            </button>
-                            <a asp-action="Login" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left"></i> Ya tengo cuenta
+                            <a asp-action="Usuarios" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Volver a Usuarios
                             </a>
                         </div>
                     </form>
@@ -118,43 +117,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script>
-        document.getElementById('registerForm').addEventListener('submit', function() {
-            document.getElementById('btnRegistrar').classList.add('d-none');
-            document.getElementById('btnCargando').classList.remove('d-none');
-        });
-
-        // Cambiar icono según el rol seleccionado
-        document.querySelector('select[name="Rol"]').addEventListener('change', function() {
-            var iconMap = {
-                'Votante': 'fa-user',
-                'Candidato': 'fa-id-badge',
-                'Administrador': 'fa-user-shield'
-            };
-            var icon = iconMap[this.value] || 'fa-user-tag';
-            var label = this.previousElementSibling;
-            label.querySelector('i').className = 'fas ' + icon;
-        });
-    </script>
-    <style>
-        .form-select:focus {
-            border-color: #28a745;
-            box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-        }
-
-        select option[value="Administrador"] {
-            font-weight: bold;
-            color: #dc3545;
-        }
-
-        select option[value="Candidato"] {
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        select option[value="Votante"] {
-            font-weight: bold;
-            color: #28a745;
-        }
-    </style>
 }

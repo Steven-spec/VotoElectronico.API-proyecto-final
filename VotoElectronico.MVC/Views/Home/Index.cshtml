@@ -17,27 +17,27 @@
 
     <!-- Botones de Acceso -->
     <div class="row mt-5 justify-content-center">
-        <div class="col-md-4 mb-3">
+        <div class="col-md-6 mb-3">
             <div class="card shadow-lg h-100 border-primary">
                 <div class="card-body text-center p-5">
-                    <i class="fas fa-sign-in-alt fa-5x text-primary mb-4"></i>
-                    <h3 class="card-title">Iniciar Sesión</h3>
-                    <p class="card-text">¿Ya tienes una cuenta? Ingresa aquí para votar.</p>
-                    <a asp-controller="Auth" asp-action="Login" class="btn btn-primary btn-lg w-100 mt-3">
-                        <i class="fas fa-arrow-right"></i> Ingresar
+                    <i class="fas fa-vote-yea fa-5x text-primary mb-4"></i>
+                    <h3 class="card-title">Votar Ahora</h3>
+                    <p class="card-text">¿Listo para votar? Ingrese con su cédula.</p>
+                    <a asp-controller="Voto" asp-action="Verificacion" class="btn btn-primary btn-lg w-100 mt-3">
+                        <i class="fas fa-arrow-right"></i> Ir a Votar
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-lg h-100 border-success">
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-lg h-100 border-danger">
                 <div class="card-body text-center p-5">
-                    <i class="fas fa-user-plus fa-5x text-success mb-4"></i>
-                    <h3 class="card-title">Registrarse</h3>
-                    <p class="card-text">¿Primera vez? Crea tu cuenta de votante aquí.</p>
-                    <a asp-controller="Auth" asp-action="Register" class="btn btn-success btn-lg w-100 mt-3">
-                        <i class="fas fa-check"></i> Registrarse
+                    <i class="fas fa-user-shield fa-5x text-danger mb-4"></i>
+                    <h3 class="card-title">Administrador</h3>
+                    <p class="card-text">Acceso al panel de administración del sistema.</p>
+                    <a asp-controller="Auth" asp-action="Login" class="btn btn-danger btn-lg w-100 mt-3">
+                        <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
                     </a>
                 </div>
             </div>
@@ -120,9 +120,9 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
-        }
+            .card:hover {
+                transform: translateY(-10px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2) !important;
+            }
     </style>
 }

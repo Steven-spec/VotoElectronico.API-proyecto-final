@@ -76,5 +76,34 @@ namespace VotoElectronico.MVC.Controllers
         {
             return View();
         }
+
+        // Nueva vista de verificación
+        public IActionResult Verificacion()
+        {
+            return View();
+        }
+
+        public async Task<IActionResult> VotarVerificado()
+        {
+            // Verificar que viene de verificación
+            // En producción validar el token
+
+            var eleccionesResponse = await _apiConsumer.GetAsync<ApiResult<List<Eleccion>>>(
+                "api/Elecciones/Activas");
+
+            if (eleccionesResponse?.Success == true && eleccionesResponse.Data?.Any() == true)
+            {
+                var eleccion = eleccionesResponse.Data.First();
+
+                var candidatosResponse = await _apiConsumer.GetAsync<ApiResult<Eleccion>>(
+                    $"api/Elecciones/{eleccion.Id}");
+
+                ViewBag.Eleccion = candidatosResponse?.Data;
+                return View("Votar", candidatosResponse?.Data);
+            }
+
+            ViewBag.Mensaje = "No hay elecciones activas en este momento.";
+            return View("Votar");
+        }
     }
 }
